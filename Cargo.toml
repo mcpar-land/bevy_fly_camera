@@ -1,11 +1,13 @@
 [package]
 name = "bevy_fly_camera"
 version = "0.1.0"
-authors = ["mcparland"]
+authors = ["mcpar-land"]
 edition = "2018"
 exclude = [".vscode/**"]
 description = "A basic flying camera in Bevy"
 license = "MIT"
+repository = "https://github.com/mcpar-land/bevy_fly_camera"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
