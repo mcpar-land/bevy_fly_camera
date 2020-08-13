@@ -1,0 +1,13 @@
+[package]
+name = "bevy_fly_camera"
+version = "0.1.0"
+authors = ["mcparland"]
+edition = "2018"
+exclude = [".vscode/**"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.1.2"
+bevy_render = "0.1.0"
+bevy_winit = "0.1.1"

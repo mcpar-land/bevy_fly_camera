@@ -1,0 +1,5 @@
+max_width = 80
+merge_imports = true
+imports_layout = "Vertical"
+hard_tabs = true
+tab_spaces = 2
