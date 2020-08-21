@@ -1,5 +1,7 @@
 //! A simple plugin and bundle for a basic flying camera in Bevy.
-//! Keybinds are identical to Minecraft:
+//! Movement system is based on Minecraft, flying along the horizontal plane no matter the mouse's vertical angle, with two extra buttons for moving vertically.
+//!
+//! Defalt keybinds are:
 //! - W / A / S / D - Move along the horizontal plane
 //! - Shift - Move downward
 //! - Space - Move upward
@@ -37,6 +39,18 @@ pub struct FlyCameraOptions {
 	pub pitch: f32,
 	/// The current pitch of the FlyCamera. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
 	pub yaw: f32,
+	/// Key used to move forward. Defaults to `W`
+	pub key_forward: KeyCode,
+	/// Key used to move backward. Defaults to `S
+	pub key_backward: KeyCode,
+	/// Key used to move left. Defaults to `A`
+	pub key_left: KeyCode,
+	/// Key used to move right. Defaults to `D`
+	pub key_right: KeyCode,
+	/// Key used to move up. Defaults to `Space`
+	pub key_up: KeyCode,
+	/// Key used to move forward. Defaults to `LShift`
+	pub key_down: KeyCode,
 }
 impl Default for FlyCameraOptions {
 	fn default() -> Self {
@@ -45,6 +59,12 @@ impl Default for FlyCameraOptions {
 			sensitivity: 3.0,
 			pitch: 0.0,
 			yaw: 0.0,
+			key_forward: KeyCode::W,
+			key_backward: KeyCode::S,
+			key_left: KeyCode::A,
+			key_right: KeyCode::D,
+			key_up: KeyCode::Space,
+			key_down: KeyCode::LShift,
 		}
 	}
 }
@@ -128,13 +148,14 @@ fn camera_movement_system(
 	keyboard_input: Res<Input<KeyCode>>,
 	mut query: Query<(&FlyCameraOptions, &mut Translation, &Rotation)>,
 ) {
-	let axis_h = movement_axis(&keyboard_input, KeyCode::D, KeyCode::A);
-	let axis_v = movement_axis(&keyboard_input, KeyCode::S, KeyCode::W);
-
-	let axis_float =
-		movement_axis(&keyboard_input, KeyCode::Space, KeyCode::LShift);
-
 	for (options, mut translation, rotation) in &mut query.iter() {
+		let axis_h =
+			movement_axis(&keyboard_input, options.key_right, options.key_left);
+		let axis_v =
+			movement_axis(&keyboard_input, options.key_backward, options.key_forward);
+
+		let axis_float =
+			movement_axis(&keyboard_input, options.key_up, options.key_down);
 		let delta_f = forward_walk_vector(rotation)
 			* axis_v
 			* options.speed
@@ -147,7 +168,6 @@ fn camera_movement_system(
 			Vec3::unit_y() * axis_float * options.speed * time.delta_seconds;
 
 		translation.0 += delta_f + delta_strafe + delta_float;
-		// println!("{:#?}", camera.projection_matrix);
 	}
 }
 

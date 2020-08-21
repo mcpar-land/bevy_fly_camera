@@ -14,4 +14,3 @@ readme = "README.md"
 [dependencies]
 bevy = "0.1.2"
 bevy_render = "0.1.0"
-bevy_winit = "0.1.1"

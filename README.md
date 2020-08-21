@@ -1,9 +1,9 @@
 This is a really basic flying camera bundle and plugin for Bevy. It's useful for testing 3d games before you've coded your own movement system.
 
-Keybinds are:
+Keybinds can be edited, but the defaults are:
 
 - W / A / S / D - Move along the horizontal plane
-- Shift - Move downward
+- Left Shift - Move downward
 - Space - Move upward
 
 # Example

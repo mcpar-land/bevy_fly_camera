@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
-use bevy_winit::WinitPlugin;
 
 fn init(
 	mut commands: Commands,
@@ -41,7 +40,6 @@ fn main() {
 		.add_resource(Msaa { samples: 4 })
 		.add_default_plugins()
 		.add_startup_system(init.system())
-		.add_plugin(WinitPlugin)
 		.add_plugin(FlyCameraPlugin)
 		.run();
 }
