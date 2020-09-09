@@ -1,4 +1,4 @@
-![Crates.io](https://img.shields.io/crates/v/bevy_fly_camera)
+[![Crates.io](https://img.shields.io/crates/v/bevy_fly_camera)](https://crates.io/crates/bevy_fly_camera)
 
 This is a really basic flying camera bundle and plugin for Bevy. It's useful for testing 3d games before you've coded your own movement system.
 
