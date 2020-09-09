@@ -43,17 +43,17 @@ use bevy::{
 /// }
 
 pub struct FlyCamera {
-	/// The speed the FlyCamera moves at.
+	/// The speed the FlyCamera moves at. Defaults to `1.0`
 	pub speed: f32,
-	/// The maximum speed the FlyCamera can move at.
+	/// The maximum speed the FlyCamera can move at. Defaults to `0.5`
 	pub max_speed: f32,
-	/// The sensitivity of the FlyCamera's motion based on mouse movement.
+	/// The sensitivity of the FlyCamera's motion based on mouse movement. Defaults to `3.0`
 	pub sensitivity: f32,
-	/// The amount of deceleration to apply to the camera's motion.
+	/// The amount of deceleration to apply to the camera's motion. Defaults to `1.0`
 	pub friction: f32,
-	/// The current pitch of the FlyCamera. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
+	/// The current pitch of the FlyCamera in degrees. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
 	pub pitch: f32,
-	/// The current pitch of the FlyCamera. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
+	/// The current pitch of the FlyCamera in degrees. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
 	pub yaw: f32,
 	/// The current velocity of the FlyCamera. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
 	pub velocity: Vec3,
