@@ -13,15 +13,17 @@ use bevy::prelude::*;
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 
 fn setup(mut commands: Commands) {
-	commands.spawn(FlyCamera::default());
+  commands
+    .spawn(Camera3dComponents::default())
+    .with(FlyCamera::default());
 }
 
 fn main() {
-	App::build()
-		.add_default_plugins()
-		.add_startup_system(setup.system())
-		.add_plugin(FlyCameraPlugin)
-		.run();
+  App::build()
+    .add_default_plugins()
+    .add_startup_system(setup.system())
+    .add_plugin(FlyCameraPlugin)
+    .run();
 }
 ```
 
