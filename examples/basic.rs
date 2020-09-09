@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+use bevy_fly_camera::{
+	FlyCamera,
+	FlyCameraPlugin,
+};
 
 fn init(
 	mut commands: Commands,
@@ -11,9 +14,8 @@ fn init(
 			translation: Translation::new(4.0, 8.0, 4.0),
 			..Default::default()
 		})
-		.spawn(FlyCamera {
-			..Default::default()
-		});
+		.spawn(Camera3dComponents::default())
+		.with(FlyCamera::default());
 
 	let box_mesh = meshes.add(Mesh::from(shape::Cube { size: 0.25 }));
 	let box_material = materials.add(Color::rgb(1.0, 0.2, 0.3).into());
