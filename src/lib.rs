@@ -90,19 +90,19 @@ impl Default for FlyCamera {
 	}
 }
 
-fn forward_vector(rotation: &Rotation) -> Vec3 {
+fn forward_vector(rotation: &Quat) -> Vec3 {
 	rotation.mul_vec3(Vec3::unit_z()).normalize()
 }
 
-fn forward_walk_vector(rotation: &Rotation) -> Vec3 {
+fn forward_walk_vector(rotation: &Quat) -> Vec3 {
 	let f = forward_vector(rotation);
 	let f_flattened = Vec3::new(f.x(), 0.0, f.z()).normalize();
 	f_flattened
 }
 
-fn strafe_vector(rotation: &Rotation) -> Vec3 {
+fn strafe_vector(rotation: &Quat) -> Vec3 {
 	// Rotate it 90 degrees to get the strafe direction
-	Rotation::from_rotation_y(90.0f32.to_radians())
+	Quat::from_rotation_y(90.0f32.to_radians())
 		.mul_vec3(forward_walk_vector(rotation))
 		.normalize()
 }
@@ -125,9 +125,9 @@ fn movement_axis(
 fn camera_movement_system(
 	time: Res<Time>,
 	keyboard_input: Res<Input<KeyCode>>,
-	mut query: Query<(&mut FlyCamera, &mut Translation, &Rotation)>,
+	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
-	for (mut options, mut translation, rotation) in &mut query.iter() {
+	for (mut options, mut transform) in &mut query.iter() {
 		let axis_h =
 			movement_axis(&keyboard_input, options.key_right, options.key_left);
 		let axis_v =
@@ -138,8 +138,9 @@ fn camera_movement_system(
 
 		let any_button_down = axis_h != 0.0 || axis_v != 0.0 || axis_float != 0.0;
 
-		let accel: Vec3 = ((strafe_vector(rotation) * axis_h)
-			+ (forward_walk_vector(rotation) * axis_v)
+		let rotation = transform.rotation();
+		let accel: Vec3 = ((strafe_vector(&rotation) * axis_h)
+			+ (forward_walk_vector(&rotation) * axis_v)
 			+ (Vec3::unit_y() * axis_float))
 			* options.speed;
 
@@ -167,7 +168,7 @@ fn camera_movement_system(
 			options.velocity + delta_friction
 		};
 
-		translation.0 += options.velocity;
+		transform.translate(options.velocity);
 	}
 }
 
@@ -180,7 +181,7 @@ fn mouse_motion_system(
 	time: Res<Time>,
 	mut state: ResMut<State>,
 	mouse_motion_events: Res<Events<MouseMotion>>,
-	mut query: Query<(&mut FlyCamera, &mut Rotation)>,
+	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	let mut delta: Vec2 = Vec2::zero();
 	for event in state.mouse_motion_event_reader.iter(&mouse_motion_events) {
@@ -190,7 +191,7 @@ fn mouse_motion_system(
 		return;
 	}
 
-	for (mut options, mut rotation) in &mut query.iter() {
+	for (mut options, mut transform) in &mut query.iter() {
 		options.yaw -= delta.x() * options.sensitivity * time.delta_seconds;
 		options.pitch += delta.y() * options.sensitivity * time.delta_seconds;
 
@@ -205,8 +206,8 @@ fn mouse_motion_system(
 		let yaw_radians = options.yaw.to_radians();
 		let pitch_radians = options.pitch.to_radians();
 
-		rotation.0 = Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
-			* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians);
+		transform.set_rotation(Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
+			* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians));
 	}
 }
 
