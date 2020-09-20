@@ -69,7 +69,7 @@ pub struct FlyCamera {
 	pub key_up: KeyCode,
 	/// Key used to move forward. Defaults to `LShift`
 	pub key_down: KeyCode,
-	/// Whether activate movement is a toggle or has to be held down. Defaults to `false`
+	/// Whether activate movement is a toggle or has to be held down. Defaults to `true`
 	pub activate_is_toggle: bool,
 	/// Mouse button used to activate movement. Defaults to `None`
 	pub mouse_button_activate: Option<MouseButton>,
@@ -92,7 +92,7 @@ impl Default for FlyCamera {
 			key_right: KeyCode::D,
 			key_up: KeyCode::Space,
 			key_down: KeyCode::LShift,
-			activate_is_toggle: false,
+			activate_is_toggle: true,
 			mouse_button_activate: None,
 			key_activate: None,
 		}
@@ -211,10 +211,18 @@ fn camera_movement_system(
 	}
 }
 
-#[derive(Default)]
 struct State {
 	mouse_motion_event_reader: EventReader<MouseMotion>,
 	activated: bool,
+}
+
+impl Default for State {
+	fn default() -> Self {
+		State {
+			mouse_motion_event_reader: EventReader::default(),
+			activated: true,
+		}
+	}
 }
 
 fn mouse_motion_system(
