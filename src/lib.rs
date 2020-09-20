@@ -27,10 +27,7 @@
 //! ```
 //!
 //! There's also a basic piece of example code included in `/examples/basic.rs`
-use bevy::{
-	input::mouse::MouseMotion,
-	prelude::*,
-};
+use bevy::{input::mouse::MouseMotion, prelude::*};
 
 /// A set of options for initializing a FlyCamera.
 /// Attach this component to a [`Camera3dComponents`](https://docs.rs/bevy/0.1.3/bevy/prelude/struct.Camera3dComponents.html) bundle to control it with your mouse and keyboard.
@@ -69,6 +66,8 @@ pub struct FlyCamera {
 	pub key_up: KeyCode,
 	/// Key used to move forward. Defaults to `LShift`
 	pub key_down: KeyCode,
+	/// If `false`, disable keyboard control of the camera. Defaults to `true`
+	pub enabled: bool,
 }
 impl Default for FlyCamera {
 	fn default() -> Self {
@@ -86,6 +85,7 @@ impl Default for FlyCamera {
 			key_right: KeyCode::D,
 			key_up: KeyCode::Space,
 			key_down: KeyCode::LShift,
+			enabled: true,
 		}
 	}
 }
@@ -128,13 +128,19 @@ fn camera_movement_system(
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	for (mut options, mut transform) in &mut query.iter() {
-		let axis_h =
-			movement_axis(&keyboard_input, options.key_right, options.key_left);
-		let axis_v =
-			movement_axis(&keyboard_input, options.key_backward, options.key_forward);
-
-		let axis_float =
-			movement_axis(&keyboard_input, options.key_up, options.key_down);
+		let (axis_h, axis_v, axis_float) = if options.enabled {
+			(
+				movement_axis(&keyboard_input, options.key_right, options.key_left),
+				movement_axis(
+					&keyboard_input,
+					options.key_backward,
+					options.key_forward,
+				),
+				movement_axis(&keyboard_input, options.key_up, options.key_down),
+			)
+		} else {
+			(0.0, 0.0, 0.0)
+		};
 
 		let any_button_down = axis_h != 0.0 || axis_v != 0.0 || axis_float != 0.0;
 
@@ -192,6 +198,9 @@ fn mouse_motion_system(
 	}
 
 	for (mut options, mut transform) in &mut query.iter() {
+		if !options.enabled {
+			continue;
+		}
 		options.yaw -= delta.x() * options.sensitivity * time.delta_seconds;
 		options.pitch += delta.y() * options.sensitivity * time.delta_seconds;
 
@@ -206,8 +215,10 @@ fn mouse_motion_system(
 		let yaw_radians = options.yaw.to_radians();
 		let pitch_radians = options.pitch.to_radians();
 
-		transform.set_rotation(Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
-			* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians));
+		transform.set_rotation(
+			Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
+				* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians),
+		);
 	}
 }
 

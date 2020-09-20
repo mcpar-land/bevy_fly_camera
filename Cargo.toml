@@ -13,3 +13,4 @@ readme = "README.md"
 
 [dependencies]
 bevy = "0.2.0"
+async-executor = "=1.1.1"

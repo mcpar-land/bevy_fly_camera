@@ -1,8 +1,9 @@
 use bevy::prelude::*;
-use bevy_fly_camera::{
-	FlyCamera,
-	FlyCameraPlugin,
-};
+use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
+
+// This is a simple example of a camera that flies around.
+// There's an included example of a system that toggles the "enabled"
+// property of the fly camera with "T"
 
 fn init(
 	mut commands: Commands,
@@ -11,7 +12,7 @@ fn init(
 ) {
 	commands
 		.spawn(LightComponents {
-			translation: Translation::new(4.0, 8.0, 4.0),
+			transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
 			..Default::default()
 		})
 		.spawn(Camera3dComponents::default())
@@ -27,7 +28,9 @@ fn init(
 				commands.spawn(PbrComponents {
 					mesh: box_mesh,
 					material: box_material,
-					translation: Translation::new(x as f32, y as f32, z as f32),
+					transform: Transform::from_translation(Vec3::new(
+						x as f32, y as f32, z as f32,
+					)),
 					..Default::default()
 				});
 			}
@@ -37,11 +40,23 @@ fn init(
 	println!("Started example!");
 }
 
+// Press "T" to toggle keyboard+mouse control over the camera
+fn toggle_button_system(
+	input: Res<Input<KeyCode>>,
+	mut options: Mut<FlyCamera>,
+) {
+	if input.just_pressed(KeyCode::T) {
+		println!("Toggled FlyCamera enabled!");
+		options.enabled = !options.enabled;
+	}
+}
+
 fn main() {
 	App::build()
 		.add_resource(Msaa { samples: 4 })
 		.add_default_plugins()
 		.add_startup_system(init.system())
 		.add_plugin(FlyCameraPlugin)
+		.add_system(toggle_button_system.system())
 		.run();
 }
