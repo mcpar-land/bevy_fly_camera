@@ -28,7 +28,7 @@
 //!
 //! There's also a basic piece of example code included in `/examples/basic.rs`
 use bevy::{
-	input::mouse::{MouseButton, MouseButtonInput, MouseMotion},
+	input::mouse::{MouseButton, MouseMotion},
 	prelude::*,
 };
 
