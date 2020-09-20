@@ -28,7 +28,7 @@
 //!
 //! There's also a basic piece of example code included in `/examples/basic.rs`
 use bevy::{
-	input::mouse::MouseMotion,
+	input::mouse::{MouseButton, MouseButtonInput, MouseMotion},
 	prelude::*,
 };
 
@@ -69,6 +69,12 @@ pub struct FlyCamera {
 	pub key_up: KeyCode,
 	/// Key used to move forward. Defaults to `LShift`
 	pub key_down: KeyCode,
+	/// Whether activate movement is a toggle or has to be held down. Defaults to `false`
+	pub activate_is_toggle: bool,
+	/// Mouse button used to activate movement. Defaults to `None`
+	pub mouse_button_activate: Option<MouseButton>,
+	/// Key used to activate movement. Defaults to `None`
+	pub key_activate: Option<KeyCode>,
 }
 impl Default for FlyCamera {
 	fn default() -> Self {
@@ -86,6 +92,35 @@ impl Default for FlyCamera {
 			key_right: KeyCode::D,
 			key_up: KeyCode::Space,
 			key_down: KeyCode::LShift,
+			activate_is_toggle: false,
+			mouse_button_activate: None,
+			key_activate: None,
+		}
+	}
+}
+
+fn activate_motion_system(
+	mut state: ResMut<State>,
+	mouse_button_input: Res<Input<MouseButton>>,
+	keyboard_input: Res<Input<KeyCode>>,
+	fly_camera: &FlyCamera,
+) {
+	if let Some(key_activate) = fly_camera.key_activate {
+		if fly_camera.activate_is_toggle {
+			if keyboard_input.just_pressed(key_activate) {
+				state.activated = !state.activated;
+			}
+		} else {
+			state.activated = keyboard_input.pressed(key_activate);
+		}
+	}
+	if let Some(mouse_button_activate) = fly_camera.mouse_button_activate {
+		if fly_camera.activate_is_toggle {
+			if mouse_button_input.just_pressed(mouse_button_activate) {
+				state.activated = !state.activated;
+			}
+		} else {
+			state.activated = mouse_button_input.pressed(mouse_button_activate);
 		}
 	}
 }
@@ -124,9 +159,13 @@ fn movement_axis(
 
 fn camera_movement_system(
 	time: Res<Time>,
+	state: Res<State>,
 	keyboard_input: Res<Input<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
+	if !state.activated {
+		return;
+	}
 	for (mut options, mut transform) in &mut query.iter() {
 		let axis_h =
 			movement_axis(&keyboard_input, options.key_right, options.key_left);
@@ -175,6 +214,7 @@ fn camera_movement_system(
 #[derive(Default)]
 struct State {
 	mouse_motion_event_reader: EventReader<MouseMotion>,
+	activated: bool,
 }
 
 fn mouse_motion_system(
@@ -183,6 +223,9 @@ fn mouse_motion_system(
 	mouse_motion_events: Res<Events<MouseMotion>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
+	if !state.activated {
+		return;
+	}
 	let mut delta: Vec2 = Vec2::zero();
 	for event in state.mouse_motion_event_reader.iter(&mouse_motion_events) {
 		delta += event.delta;
@@ -228,6 +271,7 @@ impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app
 			.init_resource::<State>()
+			.add_system(activate_motion_system.system())
 			.add_system(camera_movement_system.system())
 			.add_system(mouse_motion_system.system());
 	}
