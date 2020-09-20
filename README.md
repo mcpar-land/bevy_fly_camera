@@ -30,3 +30,11 @@ fn main() {
 ```
 
 Check out the [simple example](examples/basic.rs)
+
+# Version Matching
+
+| Bevy Version | `bevy_fly_camera` Version |
+| ------------ | ------------------------- |
+| `0.1.0`      | `0.1.1`                   |
+| `0.1.3`      | `0.3.0`                   |
+| `0.2`        | `0.4.0`                   |
