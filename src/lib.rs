@@ -72,7 +72,7 @@ pub struct FlyCamera {
 impl Default for FlyCamera {
 	fn default() -> Self {
 		Self {
-			speed: 1.0,
+			speed: 1.5,
 			max_speed: 0.5,
 			sensitivity: 3.0,
 			friction: 1.0,
@@ -142,16 +142,17 @@ fn camera_movement_system(
 			(0.0, 0.0, 0.0)
 		};
 
-		let any_button_down = axis_h != 0.0 || axis_v != 0.0 || axis_float != 0.0;
-
 		let rotation = transform.rotation();
-		let accel: Vec3 = ((strafe_vector(&rotation) * axis_h)
+		let accel: Vec3 = (strafe_vector(&rotation) * axis_h)
 			+ (forward_walk_vector(&rotation) * axis_v)
-			+ (Vec3::unit_y() * axis_float))
-			* options.speed;
+			+ (Vec3::unit_y() * axis_float);
+		let accel: Vec3 = if accel.length() != 0.0 {
+			accel.normalize() * options.speed
+		} else {
+			Vec3::zero()
+		};
 
-		let friction: Vec3 = if options.velocity.length() != 0.0 && !any_button_down
-		{
+		let friction: Vec3 = if options.velocity.length() != 0.0 {
 			options.velocity.normalize() * -1.0 * options.friction
 		} else {
 			Vec3::zero()
