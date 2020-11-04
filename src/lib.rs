@@ -127,7 +127,7 @@ fn camera_movement_system(
 	keyboard_input: Res<Input<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
-	for (mut options, mut transform) in &mut query.iter() {
+	for (mut options, mut transform) in query.iter_mut() {
 		let (axis_h, axis_v, axis_float) = if options.enabled {
 			(
 				movement_axis(&keyboard_input, options.key_right, options.key_left),
@@ -142,7 +142,7 @@ fn camera_movement_system(
 			(0.0, 0.0, 0.0)
 		};
 
-		let rotation = transform.rotation();
+		let rotation = transform.rotation;
 		let accel: Vec3 = (strafe_vector(&rotation) * axis_h)
 			+ (forward_walk_vector(&rotation) * axis_v)
 			+ (Vec3::unit_y() * axis_float);
@@ -167,15 +167,15 @@ fn camera_movement_system(
 
 		let delta_friction = friction * time.delta_seconds;
 
-		options.velocity = if (options.velocity + delta_friction).sign()
-			!= options.velocity.sign()
+		options.velocity = if (options.velocity + delta_friction).signum()
+			!= options.velocity.signum()
 		{
 			Vec3::zero()
 		} else {
 			options.velocity + delta_friction
 		};
 
-		transform.translate(options.velocity);
+		transform.translation += options.velocity;
 	}
 }
 
@@ -198,7 +198,7 @@ fn mouse_motion_system(
 		return;
 	}
 
-	for (mut options, mut transform) in &mut query.iter() {
+	for (mut options, mut transform) in query.iter_mut() {
 		if !options.enabled {
 			continue;
 		}
@@ -216,10 +216,8 @@ fn mouse_motion_system(
 		let yaw_radians = options.yaw.to_radians();
 		let pitch_radians = options.pitch.to_radians();
 
-		transform.set_rotation(
-			Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
-				* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians),
-		);
+		transform.rotation = Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
+			* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians);
 	}
 }
 

@@ -26,8 +26,8 @@ fn init(
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
 			for z in -(AMOUNT / 2)..(AMOUNT / 2) {
 				commands.spawn(PbrComponents {
-					mesh: box_mesh,
-					material: box_material,
+					mesh: box_mesh.clone(),
+					material: box_material.clone(),
 					transform: Transform::from_translation(Vec3::new(
 						x as f32, y as f32, z as f32,
 					)),
@@ -54,7 +54,7 @@ fn toggle_button_system(
 fn main() {
 	App::build()
 		.add_resource(Msaa { samples: 4 })
-		.add_default_plugins()
+		.add_plugins(DefaultPlugins)
 		.add_startup_system(init.system())
 		.add_plugin(FlyCameraPlugin)
 		.add_system(toggle_button_system.system())
