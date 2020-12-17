@@ -27,7 +27,7 @@
 //! ```
 //!
 //! There's also a basic piece of example code included in `/examples/basic.rs`
-use bevy::{input::mouse::MouseMotion, prelude::*};
+use bevy::{input::mouse::MouseMotion, prelude::*, math::clamp};
 
 /// A set of options for initializing a FlyCamera.
 /// Attach this component to a [`Camera3dComponents`](https://docs.rs/bevy/0.1.3/bevy/prelude/struct.Camera3dComponents.html) bundle to control it with your mouse and keyboard.
@@ -194,7 +194,7 @@ fn mouse_motion_system(
 	for event in state.mouse_motion_event_reader.iter(&mouse_motion_events) {
 		delta += event.delta;
 	}
-	if delta == Vec2::zero() {
+	if delta.is_nan().all() {
 		return;
 	}
 
@@ -205,12 +205,7 @@ fn mouse_motion_system(
 		options.yaw -= delta.x() * options.sensitivity * time.delta_seconds;
 		options.pitch += delta.y() * options.sensitivity * time.delta_seconds;
 
-		if options.pitch > 89.9 {
-			options.pitch = 89.9;
-		}
-		if options.pitch < -89.9 {
-			options.pitch = -89.9;
-		}
+                options.pitch = clamp(options.pitch, -89.9, 89.9);
 		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
 
 		let yaw_radians = options.yaw.to_radians();
