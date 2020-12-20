@@ -27,7 +27,7 @@
 //! ```
 //!
 //! There's also a basic piece of example code included in `/examples/basic.rs`
-use bevy::{input::mouse::MouseMotion, prelude::*, math::clamp};
+use bevy::{input::mouse::MouseMotion, math::clamp, prelude::*};
 
 /// A set of options for initializing a FlyCamera.
 /// Attach this component to a [`Camera3dComponents`](https://docs.rs/bevy/0.1.3/bevy/prelude/struct.Camera3dComponents.html) bundle to control it with your mouse and keyboard.
@@ -96,7 +96,7 @@ fn forward_vector(rotation: &Quat) -> Vec3 {
 
 fn forward_walk_vector(rotation: &Quat) -> Vec3 {
 	let f = forward_vector(rotation);
-	let f_flattened = Vec3::new(f.x(), 0.0, f.z()).normalize();
+	let f_flattened = Vec3::new(f.x, 0.0, f.z).normalize();
 	f_flattened
 }
 
@@ -158,14 +158,14 @@ fn camera_movement_system(
 			Vec3::zero()
 		};
 
-		options.velocity += accel * time.delta_seconds;
+		options.velocity += accel * time.delta_seconds();
 
 		// clamp within max speed
 		if options.velocity.length() > options.max_speed {
 			options.velocity = options.velocity.normalize() * options.max_speed;
 		}
 
-		let delta_friction = friction * time.delta_seconds;
+		let delta_friction = friction * time.delta_seconds();
 
 		options.velocity = if (options.velocity + delta_friction).signum()
 			!= options.velocity.signum()
@@ -194,7 +194,7 @@ fn mouse_motion_system(
 	for event in state.mouse_motion_event_reader.iter(&mouse_motion_events) {
 		delta += event.delta;
 	}
-	if delta.is_nan().all() {
+	if delta.is_nan() {
 		return;
 	}
 
@@ -202,10 +202,10 @@ fn mouse_motion_system(
 		if !options.enabled {
 			continue;
 		}
-		options.yaw -= delta.x() * options.sensitivity * time.delta_seconds;
-		options.pitch += delta.y() * options.sensitivity * time.delta_seconds;
+		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
+		options.pitch += delta.y * options.sensitivity * time.delta_seconds();
 
-                options.pitch = clamp(options.pitch, -89.9, 89.9);
+		options.pitch = clamp(options.pitch, -89.9, 89.9);
 		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
 
 		let yaw_radians = options.yaw.to_radians();
