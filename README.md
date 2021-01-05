@@ -33,7 +33,7 @@ Check out the [simple example](examples/basic.rs)
 
 ---
 
-If you like this crate, there are some (issues)[https://github.com/mcpar-land/bevy_fly_camera/issues/7] That I would love to get some help on to make it more maintainable! Any PRs are also welcome, though keep in mind that the project scope is intentionally tiny: A quick and dirty 3D motion camera, almost entirely intended for intermediate development steps or 3D demos.
+If you like this crate, there are some [issues](https://github.com/mcpar-land/bevy_fly_camera/issues/7) That I would love to get some help on to make it more maintainable! Any PRs are also welcome, though keep in mind that the project scope is intentionally tiny: A quick and dirty 3D motion camera, almost entirely intended for intermediate development steps or 3D demos.
 
 ---
 
