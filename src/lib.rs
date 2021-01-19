@@ -7,13 +7,13 @@
 //! - Space - Move upward
 //!
 //! # Example
-//! ```rust
+//! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 //!
-//! fn setup(mut commands: Commands) {
+//! fn setup(commands: &mut Commands) {
 //!		commands
-//! 		.spawn(Camera3dComponents::default())
+//! 		.spawn(Camera3dBundle::default())
 //! 		.with(FlyCamera::default());
 //! }
 //!
@@ -32,7 +32,7 @@ use bevy::{input::mouse::MouseMotion, math::clamp, prelude::*};
 /// A set of options for initializing a FlyCamera.
 /// Attach this component to a [`Camera3dComponents`](https://docs.rs/bevy/0.1.3/bevy/prelude/struct.Camera3dComponents.html) bundle to control it with your mouse and keyboard.
 /// # Example
-/// ```no_run
+/// ```no_compile
 /// fn setup(mut commands: Commands) {
 ///		commands
 /// 		.spawn(Camera3dComponents::default())
@@ -213,7 +213,7 @@ fn mouse_motion_system(
 /**
 Include this plugin to add the systems for the FlyCamera bundle.
 
-```no_run
+```no_compile
 fn main() {
 	App::build().add_plugin(FlyCameraPlugin);
 }
