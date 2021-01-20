@@ -7,13 +7,13 @@
 //! - Space - Move upward
 //!
 //! # Example
-//! ```rust
+//! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 //!
-//! fn setup(mut commands: Commands) {
+//! fn setup(commands: &mut Commands) {
 //!		commands
-//! 		.spawn(Camera3dComponents::default())
+//! 		.spawn(Camera3dBundle::default())
 //! 		.with(FlyCamera::default());
 //! }
 //!
@@ -32,7 +32,7 @@ use bevy::{input::mouse::MouseMotion, math::clamp, prelude::*};
 /// A set of options for initializing a FlyCamera.
 /// Attach this component to a [`Camera3dComponents`](https://docs.rs/bevy/0.1.3/bevy/prelude/struct.Camera3dComponents.html) bundle to control it with your mouse and keyboard.
 /// # Example
-/// ```no_run
+/// ```no_compile
 /// fn setup(mut commands: Commands) {
 ///		commands
 /// 		.spawn(Camera3dComponents::default())
@@ -179,19 +179,13 @@ fn camera_movement_system(
 	}
 }
 
-#[derive(Default)]
-struct State {
-	mouse_motion_event_reader: EventReader<MouseMotion>,
-}
-
 fn mouse_motion_system(
 	time: Res<Time>,
-	mut state: ResMut<State>,
-	mouse_motion_events: Res<Events<MouseMotion>>,
+	mut mouse_motion_event_reader: EventReader<MouseMotion>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	let mut delta: Vec2 = Vec2::zero();
-	for event in state.mouse_motion_event_reader.iter(&mouse_motion_events) {
+	for event in mouse_motion_event_reader.iter() {
 		delta += event.delta;
 	}
 	if delta.is_nan() {
@@ -219,7 +213,7 @@ fn mouse_motion_system(
 /**
 Include this plugin to add the systems for the FlyCamera bundle.
 
-```no_run
+```no_compile
 fn main() {
 	App::build().add_plugin(FlyCameraPlugin);
 }
@@ -232,7 +226,6 @@ pub struct FlyCameraPlugin;
 impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app
-			.init_resource::<State>()
 			.add_system(camera_movement_system.system())
 			.add_system(mouse_motion_system.system());
 	}
