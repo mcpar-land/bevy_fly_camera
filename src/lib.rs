@@ -1,47 +1,77 @@
-//! A simple plugin and component for a basic flying camera in Bevy.
+//! A simple plugin and components for 2d/3d flying cameras in Bevy.
+//!
+//! # 3D
+//!
 //! Movement system is based on Minecraft, flying along the horizontal plane no matter the mouse's vertical angle, with two extra buttons for moving vertically.
 //!
-//! Defalt keybinds are:
-//! - W / A / S / D - Move along the horizontal plane
+//! Default keybinds are:
+//! - <kbd>W</kbd> / <kbd>A</kbd> / <kbd>S</kbd> / <kbd>D</kbd> - Move along the horizontal plane
 //! - Shift - Move downward
 //! - Space - Move upward
 //!
-//! # Example
-//! ```no_run
+//! ## Example
+//! ```no_compile
 //! use bevy::prelude::*;
 //! use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 //!
 //! fn setup(commands: &mut Commands) {
-//!		commands
-//! 		.spawn(Camera3dBundle::default())
-//! 		.with(FlyCamera::default());
+//!	  commands
+//!     .spawn(Camera3dBundle::default())
+//!     .with(FlyCamera::default());
 //! }
 //!
 //! fn main() {
-//!		App::build()
-//! 		.add_plugins(DefaultPlugins)
-//! 		.add_startup_system(setup.system())
-//! 		.add_plugin(FlyCameraPlugin)
-//! 		.run();
+//!	  App::build()
+//!     .add_plugins(DefaultPlugins)
+//!     .add_startup_system(setup.system())
+//!     .add_plugin(FlyCameraPlugin)
+//!     .run();
 //! }
 //! ```
 //!
 //! There's also a basic piece of example code included in `/examples/basic.rs`
+//!
+//! # 2D
+//! Movement system only uses the keyboard to move in all four directions across the 2d plane.
+//!
+//! The default keybinds are:
+//! - <kbd>W</kbd> / <kbd>A</kbd> / <kbd>S</kbd> / <kbd>D</kbd> - Move along the 2d plane
+//!
+//! ## Example
+//! ```no_compile
+//! use bevy::prelude::*;
+//! use bevy_fly_camera::{FlyCamera2d, FlyCameraPlugin};
+//! ```
+//! ```no_compile
+//!	commands
+//!   .spawn(Camera2dBundle::default())
+//!   .with(FlyCamera2d::default());
+//! ```
+//!
+//! There's also a basic piece of example code included in `/examples/2d.rs`
+
 use bevy::{input::mouse::MouseMotion, math::clamp, prelude::*};
+use cam2d::camera_2d_movement_system;
+use util::movement_axis;
+
+mod cam2d;
+mod util;
+
+pub use cam2d::FlyCamera2d;
 
 /// A set of options for initializing a FlyCamera.
-/// Attach this component to a [`Camera3dComponents`](https://docs.rs/bevy/0.1.3/bevy/prelude/struct.Camera3dComponents.html) bundle to control it with your mouse and keyboard.
+/// Attach this component to a [`Camera3dBundle`](https://docs.rs/bevy/0.4.0/bevy/prelude/struct.Camera3dBundle.html) bundle to control it with your mouse and keyboard.
 /// # Example
 /// ```no_compile
 /// fn setup(mut commands: Commands) {
-///		commands
-/// 		.spawn(Camera3dComponents::default())
-/// 		.with(FlyCamera::default());
+///	  commands
+///     .spawn(Camera3dBundle::default())
+///     .with(FlyCamera::default());
 /// }
 
 pub struct FlyCamera {
-	/// The speed the FlyCamera moves at. Defaults to `1.0`
-	pub speed: f32,
+	/// The speed the FlyCamera accelerates at. Defaults to `1.0`
+	pub accel: f32,
 	/// The maximum speed the FlyCamera can move at. Defaults to `0.5`
 	pub max_speed: f32,
 	/// The sensitivity of the FlyCamera's motion based on mouse movement. Defaults to `3.0`
@@ -54,17 +84,17 @@ pub struct FlyCamera {
 	pub yaw: f32,
 	/// The current velocity of the FlyCamera. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
 	pub velocity: Vec3,
-	/// Key used to move forward. Defaults to `W`
+	/// Key used to move forward. Defaults to <kbd>W</kbd>
 	pub key_forward: KeyCode,
-	/// Key used to move backward. Defaults to `S
+	/// Key used to move backward. Defaults to <kbd>S</kbd>
 	pub key_backward: KeyCode,
-	/// Key used to move left. Defaults to `A`
+	/// Key used to move left. Defaults to <kbd>A</kbd>
 	pub key_left: KeyCode,
-	/// Key used to move right. Defaults to `D`
+	/// Key used to move right. Defaults to <kbd>D</kbd>
 	pub key_right: KeyCode,
-	/// Key used to move up. Defaults to `Space`
+	/// Key used to move up. Defaults to <kbd>Space</kbd>
 	pub key_up: KeyCode,
-	/// Key used to move forward. Defaults to `LShift`
+	/// Key used to move forward. Defaults to <kbd>LShift</kbd>
 	pub key_down: KeyCode,
 	/// If `false`, disable keyboard control of the camera. Defaults to `true`
 	pub enabled: bool,
@@ -72,7 +102,7 @@ pub struct FlyCamera {
 impl Default for FlyCamera {
 	fn default() -> Self {
 		Self {
-			speed: 1.5,
+			accel: 1.5,
 			max_speed: 0.5,
 			sensitivity: 3.0,
 			friction: 1.0,
@@ -107,21 +137,6 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 		.normalize()
 }
 
-fn movement_axis(
-	input: &Res<Input<KeyCode>>,
-	plus: KeyCode,
-	minus: KeyCode,
-) -> f32 {
-	let mut axis = 0.0;
-	if input.pressed(plus) {
-		axis += 1.0;
-	}
-	if input.pressed(minus) {
-		axis -= 1.0;
-	}
-	axis
-}
-
 fn camera_movement_system(
 	time: Res<Time>,
 	keyboard_input: Res<Input<KeyCode>>,
@@ -147,7 +162,7 @@ fn camera_movement_system(
 			+ (forward_walk_vector(&rotation) * axis_v)
 			+ (Vec3::unit_y() * axis_float);
 		let accel: Vec3 = if accel.length() != 0.0 {
-			accel.normalize() * options.speed
+			accel.normalize() * options.accel
 		} else {
 			Vec3::zero()
 		};
@@ -227,6 +242,7 @@ impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app
 			.add_system(camera_movement_system.system())
+			.add_system(camera_2d_movement_system.system())
 			.add_system(mouse_motion_system.system());
 	}
 }

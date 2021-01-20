@@ -1,22 +1,26 @@
 [![Crates.io](https://img.shields.io/crates/v/bevy_fly_camera)](https://crates.io/crates/bevy_fly_camera)
 
-This is a really basic flying camera bundle and plugin for Bevy. It's useful for testing 3d games before you've coded your own movement system.
+# bevy-fly-camera
+
+This is a really basic flying camera bundle and plugin for Bevy. It's useful for testing games before you've coded your own movement system.
+
+It features both a 3d camera with Minecraft-style motion, and a 2d camera without mouse-looking.
 
 Keybinds can be edited, but the defaults are:
 
-- W / A / S / D - Move along the horizontal plane
-- Left Shift - Move downward
-- Space - Move upward
+# 3D
 
-# Example
+- <kbd>W</kbd> / <kbd>A</kbd> / <kbd>S</kbd> / <kbd>D</kbd> - Move along the horizontal plane
+- <kbd>Space</kbd> - Move upward
+- <kbd>L Shift</kbd> - Move downward
 
 ```rust
 use bevy::prelude::*;
 use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 
-fn setup(mut commands: Commands) {
+fn setup(commands: &mut Commands) {
   commands
-    .spawn(Camera3dComponents::default())
+    .spawn(Camera3dBundle::default())
     .with(FlyCamera::default());
 }
 
@@ -29,7 +33,32 @@ fn main() {
 }
 ```
 
-Check out the [simple example](examples/basic.rs)
+[Runnable 3D Example](examples/basic.rs)
+
+# 2D
+
+- <kbd>W</kbd> / <kbd>A</kbd> / <kbd>S</kbd> / <kbd>D</kbd> - Move along the 2d plane
+
+```rust
+use bevy::prelude::*;
+use bevy_fly_camera::{FlyCamera2d, FlyCameraPlugin};
+
+fn setup(commands: &mut Commands) {
+  commands
+    .spawn(Camera2dBundle::default())
+    .with(FlyCamera2d::default());
+}
+
+fn main() {
+  App::build()
+    .add_plugins(DefaultPlugins)
+    .add_startup_system(setup.system())
+    .add_plugin(FlyCameraPlugin)
+    .run();
+}
+```
+
+[Runnable 2D Example](examples/2d.rs)
 
 ---
 
