@@ -64,6 +64,8 @@ fn main() {
 
 If you like this crate, there are some [issues](https://github.com/mcpar-land/bevy_fly_camera/issues/7) that I would love to get some help on to make it more maintainable!
 
+If you use this crate in a project, I'd love to know about it! Send me a message or just open an issue about it! ♥
+
 Any PRs are also welcome, though keep in mind that the project scope is intentionally tiny: A quick and dirty 3D motion camera, almost entirely intended for intermediate development steps or 3D demos.
 
 ---
