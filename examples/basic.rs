@@ -6,17 +6,18 @@ use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 // property of the fly camera with "T"
 
 fn init(
-	commands: &mut Commands,
+	mut commands: Commands,
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+	commands.spawn().insert_bundle(LightBundle {
+		transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
+		..Default::default()
+	});
 	commands
-		.spawn(LightBundle {
-			transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
-			..Default::default()
-		})
-		.spawn(Camera3dBundle::default())
-		.with(FlyCamera::default());
+		.spawn()
+		.insert_bundle(PerspectiveCameraBundle::new_3d())
+		.insert(FlyCamera::default());
 
 	let box_mesh = meshes.add(Mesh::from(shape::Cube { size: 0.25 }));
 	let box_material = materials.add(Color::rgb(1.0, 0.2, 0.3).into());
@@ -25,7 +26,7 @@ fn init(
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
 			for z in -(AMOUNT / 2)..(AMOUNT / 2) {
-				commands.spawn(PbrBundle {
+				commands.spawn().insert_bundle(PbrBundle {
 					mesh: box_mesh.clone(),
 					material: box_material.clone(),
 					transform: Transform::from_translation(Vec3::new(
@@ -55,7 +56,7 @@ fn toggle_button_system(
 
 fn main() {
 	App::build()
-		.add_resource(Msaa { samples: 4 })
+		.insert_resource(Msaa { samples: 4 })
 		.add_plugins(DefaultPlugins)
 		.add_startup_system(init.system())
 		.add_plugin(FlyCameraPlugin)
