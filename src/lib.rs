@@ -50,7 +50,7 @@
 //!
 //! There's also a basic piece of example code included in `/examples/2d.rs`
 
-use bevy::{input::mouse::MouseMotion, math::clamp, prelude::*};
+use bevy::{input::mouse::MouseMotion, prelude::*};
 use cam2d::camera_2d_movement_system;
 use util::movement_axis;
 
@@ -108,7 +108,7 @@ impl Default for FlyCamera {
 			friction: 1.0,
 			pitch: 0.0,
 			yaw: 0.0,
-			velocity: Vec3::zero(),
+			velocity: Vec3::ZERO,
 			key_forward: KeyCode::W,
 			key_backward: KeyCode::S,
 			key_left: KeyCode::A,
@@ -121,7 +121,7 @@ impl Default for FlyCamera {
 }
 
 fn forward_vector(rotation: &Quat) -> Vec3 {
-	rotation.mul_vec3(Vec3::unit_z()).normalize()
+	rotation.mul_vec3(Vec3::Z).normalize()
 }
 
 fn forward_walk_vector(rotation: &Quat) -> Vec3 {
@@ -160,17 +160,17 @@ fn camera_movement_system(
 		let rotation = transform.rotation;
 		let accel: Vec3 = (strafe_vector(&rotation) * axis_h)
 			+ (forward_walk_vector(&rotation) * axis_v)
-			+ (Vec3::unit_y() * axis_float);
+			+ (Vec3::Y * axis_float);
 		let accel: Vec3 = if accel.length() != 0.0 {
 			accel.normalize() * options.accel
 		} else {
-			Vec3::zero()
+			Vec3::ZERO
 		};
 
 		let friction: Vec3 = if options.velocity.length() != 0.0 {
 			options.velocity.normalize() * -1.0 * options.friction
 		} else {
-			Vec3::zero()
+			Vec3::ZERO
 		};
 
 		options.velocity += accel * time.delta_seconds();
@@ -185,7 +185,7 @@ fn camera_movement_system(
 		options.velocity = if (options.velocity + delta_friction).signum()
 			!= options.velocity.signum()
 		{
-			Vec3::zero()
+			Vec3::ZERO
 		} else {
 			options.velocity + delta_friction
 		};
@@ -199,7 +199,7 @@ fn mouse_motion_system(
 	mut mouse_motion_event_reader: EventReader<MouseMotion>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
-	let mut delta: Vec2 = Vec2::zero();
+	let mut delta: Vec2 = Vec2::ZERO;
 	for event in mouse_motion_event_reader.iter() {
 		delta += event.delta;
 	}
@@ -214,14 +214,14 @@ fn mouse_motion_system(
 		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
 		options.pitch += delta.y * options.sensitivity * time.delta_seconds();
 
-		options.pitch = clamp(options.pitch, -89.9, 89.9);
+		options.pitch = options.pitch.clamp(-89.0, 89.9);
 		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
 
 		let yaw_radians = options.yaw.to_radians();
 		let pitch_radians = options.pitch.to_radians();
 
-		transform.rotation = Quat::from_axis_angle(Vec3::unit_y(), yaw_radians)
-			* Quat::from_axis_angle(-Vec3::unit_x(), pitch_radians);
+		transform.rotation = Quat::from_axis_angle(Vec3::Y, yaw_radians)
+			* Quat::from_axis_angle(-Vec3::X, pitch_radians);
 	}
 }
 
