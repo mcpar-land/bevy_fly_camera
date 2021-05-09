@@ -96,8 +96,10 @@ pub struct FlyCamera {
 	pub key_up: KeyCode,
 	/// Key used to move forward. Defaults to <kbd>LShift</kbd>
 	pub key_down: KeyCode,
-	/// If `false`, disable keyboard control of the camera. Defaults to `true`
+	/// If `false`, disable keyboard control of the camera (keyboard and mouse). Defaults to `true`
 	pub enabled: bool,
+	// If `false`, disable mouse control. Defaults to `true`
+	pub mouse_motion_enabled: bool,
 }
 impl Default for FlyCamera {
 	fn default() -> Self {
@@ -116,6 +118,7 @@ impl Default for FlyCamera {
 			key_up: KeyCode::Space,
 			key_down: KeyCode::LShift,
 			enabled: true,
+			mouse_motion_enabled: true,
 		}
 	}
 }
@@ -208,7 +211,7 @@ fn mouse_motion_system(
 	}
 
 	for (mut options, mut transform) in query.iter_mut() {
-		if !options.enabled {
+		if !options.enabled || !options.mouse_motion_enabled {
 			continue;
 		}
 		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
