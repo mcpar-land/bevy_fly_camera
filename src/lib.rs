@@ -78,10 +78,12 @@ pub struct FlyCamera {
 	pub sensitivity: f32,
 	/// The amount of deceleration to apply to the camera's motion. Defaults to `1.0`
 	pub friction: f32,
-	/// The current pitch of the FlyCamera in degrees. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
-	pub pitch: f32,
-	/// The current pitch of the FlyCamera in degrees. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
-	pub yaw: f32,
+	/**
+	 The current yaw/pitch of the FlyCamera in degrees.
+	 The initial value is set by the user to the intented yaw/pitch. Leaving it to None will make the plugin take the values from the camera on the first iteration.
+	 Then the values are always set and kept up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html).
+	 */
+	pub yaw_pitch: Option<(f32, f32)>,
 	/// The current velocity of the FlyCamera. This value is always up-to-date, enforced by [FlyCameraPlugin](struct.FlyCameraPlugin.html)
 	pub velocity: Vec3,
 	/// Key used to move forward. Defaults to <kbd>W</kbd>
@@ -106,8 +108,7 @@ impl Default for FlyCamera {
 			max_speed: 0.5,
 			sensitivity: 3.0,
 			friction: 1.0,
-			pitch: 0.0,
-			yaw: 0.0,
+			yaw_pitch: None,
 			velocity: Vec3::ZERO,
 			key_forward: KeyCode::W,
 			key_backward: KeyCode::S,
@@ -211,18 +212,32 @@ fn mouse_motion_system(
 		if !options.enabled {
 			continue;
 		}
-		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
-		options.pitch += delta.y * options.sensitivity * time.delta_seconds();
-
-		options.pitch = options.pitch.clamp(-89.0, 89.9);
-		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
-
-		let yaw_radians = options.yaw.to_radians();
-		let pitch_radians = options.pitch.to_radians();
-
+		let (previous_yaw, previous_pitch) = match options.yaw_pitch {
+			None => get_yaw_pitch(&transform.rotation),
+			Some(yaw_pitch) => yaw_pitch,
+		};
+		let new_yaw = previous_yaw - delta.x * options.sensitivity * time.delta_seconds();
+		let mut new_pitch = previous_pitch + delta.y * options.sensitivity * time.delta_seconds();
+		new_pitch = new_pitch.clamp(-89.0, 89.9);
+		options.yaw_pitch = Some((new_yaw, new_pitch));
+		let yaw_radians = new_yaw.to_radians();
+		let pitch_radians = new_pitch.to_radians();
 		transform.rotation = Quat::from_axis_angle(Vec3::Y, yaw_radians)
 			* Quat::from_axis_angle(-Vec3::X, pitch_radians);
 	}
+}
+
+/**
+Extracts the yaw, pitch in degrees from the given camera rotation
+**/
+fn get_yaw_pitch(rotation: &Quat) -> (f32, f32) {
+	let q = rotation;
+	let sinp = 2.0 * (q.w * q.x - q.y * q.z);
+	let pitch = - sinp.asin();
+    let siny_cosp = 2.0 * (q.w * q.y + q.z * q.x);
+    let cosy_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+    let yaw = siny_cosp.atan2(cosy_cosp);
+	(yaw.to_degrees(), pitch.to_degrees())
 }
 
 /**
