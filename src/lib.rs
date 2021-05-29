@@ -120,6 +120,25 @@ impl Default for FlyCamera {
 	}
 }
 
+
+pub mod camera_events {
+    use bevy::{math::Vec2};
+
+	#[derive(Debug)]
+	pub enum EventType {
+		Move(f32, bool),
+		Strafe(f32),
+		MoveVertical(f32),
+		LookMouse(Vec2),
+	}
+
+	#[derive(Debug)]
+	pub struct CameraEvent {
+		pub event_type: EventType,
+	}
+}
+
+
 fn forward_vector(rotation: &Quat) -> Vec3 {
 	rotation.mul_vec3(Vec3::Z).normalize()
 }
@@ -137,12 +156,64 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 		.normalize()
 }
 
-fn camera_movement_system(
+fn emit_camera_rotation_events(
+	mut mouse_motion_event_reader: EventReader<MouseMotion>,
+	mut emit_events: bevy::prelude::EventWriter<camera_events::CameraEvent>,
+
+) {
+	let mut delta: Vec2 = Vec2::ZERO;
+	for event in mouse_motion_event_reader.iter() {
+		delta += event.delta;
+	}
+	if delta.is_nan() || delta == Vec2::ZERO {
+		return;
+	}
+
+	emit_events.send(camera_events::CameraEvent {
+		event_type: camera_events::EventType::LookMouse(delta)
+	})
+}
+
+fn consume_camera_rotation_events(
 	time: Res<Time>,
-	keyboard_input: Res<Input<KeyCode>>,
+	mut events: EventReader<camera_events::CameraEvent>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	for (mut options, mut transform) in query.iter_mut() {
+		if !options.enabled {
+			continue;
+		}
+		let mut delta = Vec2::ZERO;
+		for event in events.iter() {
+			match event.event_type {
+			    camera_events::EventType::LookMouse(mouse_delta) => { delta += mouse_delta }
+				_ => {}
+			}
+		}
+
+		if delta != Vec2::ZERO {
+		
+			options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
+			options.pitch += delta.y * options.sensitivity * time.delta_seconds();
+
+			options.pitch = options.pitch.clamp(-89.0, 89.9);
+			// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
+
+			let yaw_radians = options.yaw.to_radians();
+			let pitch_radians = options.pitch.to_radians();
+
+			transform.rotation = Quat::from_axis_angle(Vec3::Y, yaw_radians)
+				* Quat::from_axis_angle(-Vec3::X, pitch_radians);
+		}
+	}
+}
+
+fn emit_camera_movement_events(
+	keyboard_input: Res<Input<KeyCode>>,
+	mut emit_events: bevy::prelude::EventWriter<camera_events::CameraEvent>,
+	mut query: Query<&mut FlyCamera>,
+) {
+	for options in query.iter_mut() {
 		let (axis_h, axis_v, axis_float) = if options.enabled {
 			(
 				movement_axis(&keyboard_input, options.key_right, options.key_left),
@@ -157,10 +228,50 @@ fn camera_movement_system(
 			(0.0, 0.0, 0.0)
 		};
 
+		if axis_h != 0.0 {
+			emit_events.send(camera_events::CameraEvent {
+				event_type: camera_events::EventType::Strafe(axis_h)
+			})
+		}
+
+		if axis_v != 0.0 {
+			emit_events.send(camera_events::CameraEvent {
+				event_type: camera_events::EventType::Move(axis_v, true)
+			})
+		}
+
+		if axis_float != 0.0 {
+			emit_events.send(camera_events::CameraEvent {
+				event_type: camera_events::EventType::MoveVertical(axis_float)
+			})
+		}
+	}
+}
+
+fn consume_camera_events(
+	time: Res<Time>,
+	mut events: EventReader<camera_events::CameraEvent>,
+	mut query: Query<(&mut FlyCamera, &mut Transform)>,
+) {
+	for (mut options, mut transform) in query.iter_mut() {
+		let mut accel = Vec3::ZERO;
 		let rotation = transform.rotation;
-		let accel: Vec3 = (strafe_vector(&rotation) * axis_h)
-			+ (forward_walk_vector(&rotation) * axis_v)
-			+ (Vec3::Y * axis_float);
+
+		for event in events.iter() {
+			match event.event_type {
+				camera_events::EventType::Move(distance, _horizontal) => {
+					accel += forward_walk_vector(&rotation) * distance;
+				}
+			    camera_events::EventType::Strafe(distance) => {
+					accel += strafe_vector(&rotation) * distance;
+				}
+			    camera_events::EventType::MoveVertical(distance) => {
+					accel += Vec3::Y * distance
+				}
+			    camera_events::EventType::LookMouse(_) => {}
+			}
+		}
+
 		let accel: Vec3 = if accel.length() != 0.0 {
 			accel.normalize() * options.accel
 		} else {
@@ -194,37 +305,6 @@ fn camera_movement_system(
 	}
 }
 
-fn mouse_motion_system(
-	time: Res<Time>,
-	mut mouse_motion_event_reader: EventReader<MouseMotion>,
-	mut query: Query<(&mut FlyCamera, &mut Transform)>,
-) {
-	let mut delta: Vec2 = Vec2::ZERO;
-	for event in mouse_motion_event_reader.iter() {
-		delta += event.delta;
-	}
-	if delta.is_nan() {
-		return;
-	}
-
-	for (mut options, mut transform) in query.iter_mut() {
-		if !options.enabled {
-			continue;
-		}
-		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
-		options.pitch += delta.y * options.sensitivity * time.delta_seconds();
-
-		options.pitch = options.pitch.clamp(-89.0, 89.9);
-		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
-
-		let yaw_radians = options.yaw.to_radians();
-		let pitch_radians = options.pitch.to_radians();
-
-		transform.rotation = Quat::from_axis_angle(Vec3::Y, yaw_radians)
-			* Quat::from_axis_angle(-Vec3::X, pitch_radians);
-	}
-}
-
 /**
 Include this plugin to add the systems for the FlyCamera bundle.
 
@@ -241,8 +321,20 @@ pub struct FlyCameraPlugin;
 impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app
-			.add_system(camera_movement_system.system())
+			// .add_system(camera_movement_system.system())
 			.add_system(camera_2d_movement_system.system())
-			.add_system(mouse_motion_system.system());
+			.add_system(emit_camera_rotation_events.system()
+				.label("emit_camera_rotation_events"))
+			.add_system(consume_camera_rotation_events.system()
+				.label("consume_camera_rotation_events")
+				.after("emit_camera_rotation_events"))
+			.add_system(emit_camera_movement_events.system()
+				.label("emit_camera_movement_events"))
+			.add_system(consume_camera_events.system()
+				.label("consume_camera_movement_events")
+				.after("emit_camera_movement_events")
+		);
+
+		app.add_event::<camera_events::CameraEvent>();
 	}
 }
