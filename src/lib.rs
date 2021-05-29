@@ -126,6 +126,8 @@ pub mod camera_events {
 
 	#[derive(Debug)]
 	pub enum EventType {
+		// Move forward or back, bool is whether to move horizontally
+		// FIXME: should non-horizontal movement be a separate enum? (MoveLook?)
 		Move(f32, bool),
 		Strafe(f32),
 		MoveVertical(f32),
