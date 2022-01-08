@@ -16,7 +16,7 @@ fn init(
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
 			commands.spawn().insert_bundle(SpriteBundle {
-				material: materials.add(asset_server.load("icon.png").into()),
+				texture: asset_server.load("icon.png"),
 				transform: Transform::from_xyz(
 					x as f32 * SPACING,
 					y as f32 * SPACING,
@@ -29,10 +29,10 @@ fn init(
 }
 
 fn main() {
-	App::build()
+	App::new()
 		.insert_resource(Msaa { samples: 4 })
 		.add_plugins(DefaultPlugins)
-		.add_startup_system(init.system())
+		.add_startup_system(init)
 		.add_plugin(FlyCameraPlugin)
 		.run();
 }

@@ -11,6 +11,7 @@ use crate::util::movement_axis;
 ///     .spawn(Camera2dBundle::default())
 ///     .with(FlyCamera2d::default());
 /// }
+#[derive(Component)]
 pub struct FlyCamera2d {
 	/// The speed the FlyCamera2d accelerates at.
 	pub accel: f32,

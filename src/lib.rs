@@ -69,6 +69,7 @@ pub use cam2d::FlyCamera2d;
 ///     .with(FlyCamera::default());
 /// }
 
+#[derive(Component)]
 pub struct FlyCamera {
 	/// The speed the FlyCamera accelerates at. Defaults to `1.0`
 	pub accel: f32,
@@ -239,10 +240,10 @@ fn main() {
 pub struct FlyCameraPlugin;
 
 impl Plugin for FlyCameraPlugin {
-	fn build(&self, app: &mut AppBuilder) {
+	fn build(&self, app: &mut App) {
 		app
-			.add_system(camera_movement_system.system())
-			.add_system(camera_2d_movement_system.system())
-			.add_system(mouse_motion_system.system());
+			.add_system(camera_movement_system)
+			.add_system(camera_2d_movement_system)
+			.add_system(mouse_motion_system);
 	}
 }
