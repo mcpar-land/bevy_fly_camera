@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fly_camera"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["mcpar-land"]
 edition = "2021"
 exclude = [".vscode/**"]
