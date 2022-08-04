@@ -8,7 +8,7 @@ fn init(
 ) {
 	commands
 		.spawn()
-		.insert_bundle(OrthographicCameraBundle::new_2d())
+		.insert_bundle(Camera2dBundle::default())
 		.insert(FlyCamera2d::default());
 
 	const AMOUNT: i32 = 6;

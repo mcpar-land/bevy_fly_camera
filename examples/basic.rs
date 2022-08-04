@@ -16,7 +16,7 @@ fn init(
 	});
 	commands
 		.spawn()
-		.insert_bundle(PerspectiveCameraBundle::new_3d())
+		.insert_bundle(Camera3dBundle::default())
 		.insert(FlyCamera::default());
 
 	let box_mesh = meshes.add(Mesh::from(shape::Cube { size: 0.25 }));
