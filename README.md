@@ -20,8 +20,8 @@ use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 
 fn setup(commands: &mut Commands) {
   commands
-    .spawn(Camera3dBundle::default())
-    .with(FlyCamera::default());
+    .spawn_bundle(Camera3dBundle::default())
+    .insert(FlyCamera::default());
 }
 
 fn main() {
@@ -45,8 +45,8 @@ use bevy_fly_camera::{FlyCamera2d, FlyCameraPlugin};
 
 fn setup(commands: &mut Commands) {
   commands
-    .spawn(Camera2dBundle::default())
-    .with(FlyCamera2d::default());
+    .spawn_bundle(Camera2dBundle::default())
+    .insert(FlyCamera2d::default());
 }
 
 fn main() {
