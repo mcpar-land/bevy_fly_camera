@@ -199,7 +199,11 @@ fn mouse_motion_system(
 	time: Res<Time>,
 	mut mouse_motion_event_reader: EventReader<MouseMotion>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
+	grab: Res<Grab>
 ) {
+	if !grab.0 {
+		return;
+	}
 	let mut delta: Vec2 = Vec2::ZERO;
 	for event in mouse_motion_event_reader.iter() {
 		delta += event.delta;
@@ -244,6 +248,28 @@ impl Plugin for FlyCameraPlugin {
 		app
 			.add_system(camera_movement_system)
 			.add_system(camera_2d_movement_system)
-			.add_system(mouse_motion_system);
+			.add_system(mouse_motion_system)
+			.insert_resource(Grab(true))
+			.add_system(cursor_grab_system)
+			.add_startup_system(setup_lock_cursor_system);
 	}
+}
+pub struct Grab(bool);
+fn setup_lock_cursor_system(grab: Res<Grab>, mut windows: ResMut<Windows>) {
+    let window = windows.get_primary_mut().unwrap();
+	window.set_cursor_lock_mode(grab.0);
+    window.set_cursor_visibility(!grab.0);
+}
+fn cursor_grab_system(
+	mut grab: ResMut<Grab>,
+    mut windows: ResMut<Windows>,
+    key: Res<Input<KeyCode>>,
+) {
+    let window = windows.get_primary_mut().unwrap();
+    if key.just_pressed(KeyCode::F) {
+		grab.0 = !grab.0;
+        window.set_cursor_lock_mode(grab.0);
+        window.set_cursor_visibility(!grab.0);
+    }
+
 }
