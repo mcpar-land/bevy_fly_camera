@@ -258,7 +258,12 @@ impl Plugin for FlyCameraPlugin {
 pub struct Grab(bool);
 fn setup_lock_cursor_system(grab: Res<Grab>, mut windows: ResMut<Windows>) {
     let window = windows.get_primary_mut().unwrap();
-	window.set_cursor_lock_mode(grab.0);
+	if grab.0 {
+
+		window.set_cursor_grab_mode(bevy::window::CursorGrabMode::Confined);
+	} else {
+		window.set_cursor_grab_mode(bevy::window::CursorGrabMode::None);
+	}
     window.set_cursor_visibility(!grab.0);
 }
 fn cursor_grab_system(
@@ -269,7 +274,11 @@ fn cursor_grab_system(
     let window = windows.get_primary_mut().unwrap();
     if key.just_pressed(KeyCode::F) {
 		grab.0 = !grab.0;
-        window.set_cursor_lock_mode(grab.0);
+        if grab.0 {
+			window.set_cursor_grab_mode(bevy::window::CursorGrabMode::Confined);
+		} else {
+			window.set_cursor_grab_mode(bevy::window::CursorGrabMode::None);
+		}
         window.set_cursor_visibility(!grab.0);
     }
 
