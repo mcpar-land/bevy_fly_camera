@@ -254,6 +254,7 @@ impl Plugin for FlyCameraPlugin {
 			.add_startup_system(setup_lock_cursor_system);
 	}
 }
+#[derive(Resource)]
 pub struct Grab(bool);
 fn setup_lock_cursor_system(grab: Res<Grab>, mut windows: ResMut<Windows>) {
     let window = windows.get_primary_mut().unwrap();
