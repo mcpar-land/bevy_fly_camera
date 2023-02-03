@@ -10,13 +10,12 @@ fn init(
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-	commands.spawn().insert_bundle(DirectionalLightBundle {
+	commands.spawn(DirectionalLightBundle {
 		transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
 		..Default::default()
 	});
 	commands
-		.spawn()
-		.insert_bundle(PerspectiveCameraBundle::new_3d())
+		.spawn(Camera3dBundle::default())
 		.insert(FlyCamera::default());
 
 	let box_mesh = meshes.add(Mesh::from(shape::Cube { size: 0.25 }));
@@ -26,7 +25,7 @@ fn init(
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
 			for z in -(AMOUNT / 2)..(AMOUNT / 2) {
-				commands.spawn().insert_bundle(PbrBundle {
+				commands.spawn(PbrBundle {
 					mesh: box_mesh.clone(),
 					material: box_material.clone(),
 					transform: Transform::from_translation(Vec3::new(

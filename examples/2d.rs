@@ -7,15 +7,14 @@ fn init(
 	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
 	commands
-		.spawn()
-		.insert_bundle(OrthographicCameraBundle::new_2d())
+		.spawn(Camera2dBundle::default())
 		.insert(FlyCamera2d::default());
 
 	const AMOUNT: i32 = 6;
 	const SPACING: f32 = 300.0;
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
-			commands.spawn().insert_bundle(SpriteBundle {
+			commands.spawn(SpriteBundle {
 				texture: asset_server.load("icon.png"),
 				transform: Transform::from_xyz(
 					x as f32 * SPACING,
