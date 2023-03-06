@@ -29,7 +29,7 @@ fn init(
 
 fn main() {
 	App::new()
-		.insert_resource(Msaa { samples: 4 })
+		.insert_resource(Msaa::Sample4)
 		.add_plugins(DefaultPlugins)
 		.add_startup_system(init)
 		.add_plugin(FlyCameraPlugin)
