@@ -99,6 +99,8 @@ pub struct FlyCamera {
 	pub key_down: KeyCode,
 	/// If `false`, disable keyboard control of the camera. Defaults to `true`
 	pub enabled: bool,
+	/// If 'true', invert the y-axis for the mouse movement. Defaults to 'false'
+	pub invert_y_axis: bool,
 }
 impl Default for FlyCamera {
 	fn default() -> Self {
@@ -117,6 +119,7 @@ impl Default for FlyCamera {
 			key_up: KeyCode::Space,
 			key_down: KeyCode::LShift,
 			enabled: true,
+			invert_y_axis: false,
 		}
 	}
 }
@@ -213,8 +216,12 @@ fn mouse_motion_system(
 			continue;
 		}
 		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
-		options.pitch += delta.y * options.sensitivity * time.delta_seconds();
-
+		if options.invert_y_axis {
+			options.pitch += -delta.y * options.sensitivity * time.delta_seconds();
+		} else {
+			options.pitch += delta.y * options.sensitivity * time.delta_seconds();
+		}
+		
 		options.pitch = options.pitch.clamp(-89.0, 89.9);
 		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
 
