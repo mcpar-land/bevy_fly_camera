@@ -141,9 +141,10 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 fn camera_movement_system(
 	time: Res<Time>,
 	keyboard_input: Res<Input<KeyCode>>,
-	mut query: Query<(&mut FlyCamera, &mut Transform)>,
+	mut query_camera: Query<(Entity, &mut FlyCamera), With<Transform>>,
+	mut query_transform: Query<&mut Transform>,
 ) {
-	for (mut options, mut transform) in query.iter_mut() {
+	for (entity, mut options) in query_camera.iter_mut() {
 		let (axis_h, axis_v, axis_float) = if options.enabled {
 			(
 				movement_axis(&keyboard_input, options.key_right, options.key_left),
@@ -157,6 +158,12 @@ fn camera_movement_system(
 		} else {
 			(0.0, 0.0, 0.0)
 		};
+
+		if (axis_h, axis_v, axis_float) == (0.0, 0.0, 0.0) {
+			continue;
+		}
+
+		let mut transform = query_transform.get_mut(entity).unwrap();
 
 		let rotation = transform.rotation;
 		let accel: Vec3 = (strafe_vector(&rotation) * axis_h)
@@ -204,7 +211,7 @@ fn mouse_motion_system(
 	for event in mouse_motion_event_reader.iter() {
 		delta += event.delta;
 	}
-	if delta.is_nan() {
+	if delta.is_nan() || delta == Vec2::ZERO {
 		return;
 	}
 
