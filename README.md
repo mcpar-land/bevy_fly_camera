@@ -27,8 +27,8 @@ fn setup(commands: &mut Commands) {
 fn main() {
   App::new()
     .add_plugins(DefaultPlugins)
-    .add_startup_system(setup)
-    .add_plugin(FlyCameraPlugin)
+    .add_systems(Startup, setup)
+    .add_plugins(FlyCameraPlugin)
     .run();
 }
 ```
@@ -52,8 +52,8 @@ fn setup(commands: &mut Commands) {
 fn main() {
   App::new()
     .add_plugins(DefaultPlugins)
-    .add_startup_system(setup)
-    .add_plugin(FlyCameraPlugin)
+    .add_systems(Startup, setup)
+    .add_plugins(FlyCameraPlugin)
     .run();
 }
 ```
@@ -84,3 +84,4 @@ Any PRs are also welcome, though keep in mind that the project scope is intentio
 | `0.6.0`      | `0.8.0`                   |
 | `0.9.0`      | `0.9.0`                   |
 | `0.10.0`     | `0.10.0`                  |
+| `0.11.0`     | `0.11.0`                  |
