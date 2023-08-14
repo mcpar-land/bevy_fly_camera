@@ -23,8 +23,8 @@
 //! fn main() {
 //!	  App::build()
 //!     .add_plugins(DefaultPlugins)
-//!     .add_startup_system(setup.system())
-//!     .add_plugin(FlyCameraPlugin)
+//!     .add_systems(Startup, setup)
+//!     .add_plugins(FlyCameraPlugin)
 //!     .run();
 //! }
 //! ```
@@ -115,7 +115,7 @@ impl Default for FlyCamera {
 			key_left: KeyCode::A,
 			key_right: KeyCode::D,
 			key_up: KeyCode::Space,
-			key_down: KeyCode::LShift,
+			key_down: KeyCode::ShiftLeft,
 			enabled: true,
 		}
 	}
@@ -231,7 +231,7 @@ Include this plugin to add the systems for the FlyCamera bundle.
 
 ```no_compile
 fn main() {
-	App::build().add_plugin(FlyCameraPlugin);
+	App::build().add_plugins(FlyCameraPlugin);
 }
 ```
 
@@ -242,8 +242,8 @@ pub struct FlyCameraPlugin;
 impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_system(camera_movement_system)
-			.add_system(camera_2d_movement_system)
-			.add_system(mouse_motion_system);
+			.add_systems(Update, camera_movement_system)
+			.add_systems(Update, camera_2d_movement_system)
+			.add_systems(Update, mouse_motion_system);
 	}
 }

@@ -21,14 +21,14 @@ use bevy_fly_camera::{FlyCamera, FlyCameraPlugin};
 fn setup(commands: &mut Commands) {
   commands
     .spawn(Camera3dBundle::default())
-    .with(FlyCamera::default());
+    .insert(FlyCamera::default());
 }
 
 fn main() {
   App::new()
     .add_plugins(DefaultPlugins)
-    .add_startup_system(setup)
-    .add_plugin(FlyCameraPlugin)
+    .add_systems(Startup, setup)
+    .add_plugins(FlyCameraPlugin)
     .run();
 }
 ```
@@ -46,14 +46,14 @@ use bevy_fly_camera::{FlyCamera2d, FlyCameraPlugin};
 fn setup(commands: &mut Commands) {
   commands
     .spawn(Camera2dBundle::default())
-    .with(FlyCamera2d::default());
+    .insert(FlyCamera2d::default());
 }
 
 fn main() {
   App::new()
     .add_plugins(DefaultPlugins)
-    .add_startup_system(setup)
-    .add_plugin(FlyCameraPlugin)
+    .add_systems(Startup, setup)
+    .add_plugins(FlyCameraPlugin)
     .run();
 }
 ```
@@ -84,3 +84,4 @@ Any PRs are also welcome, though keep in mind that the project scope is intentio
 | `0.6.0`      | `0.8.0`                   |
 | `0.9.0`      | `0.9.0`                   |
 | `0.10.0`     | `0.10.0`                  |
+| `0.11.0`     | `0.11.0`                  |
