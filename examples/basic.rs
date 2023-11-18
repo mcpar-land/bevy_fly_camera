@@ -57,8 +57,8 @@ fn main() {
 	App::new()
 		.insert_resource(Msaa::Sample4)
 		.add_plugins(DefaultPlugins)
-		.add_startup_system(init)
-		.add_plugin(FlyCameraPlugin)
-		.add_system(toggle_button_system)
+		.add_systems(Startup, init)
+		.add_plugins(FlyCameraPlugin)
+		.add_systems(Update, toggle_button_system)
 		.run();
 }
