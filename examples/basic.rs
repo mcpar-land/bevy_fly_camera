@@ -19,7 +19,7 @@ fn init(
 		.insert(FlyCamera::default());
 
 	let box_mesh = meshes.add(Mesh::from(shape::Cube { size: 0.25 }));
-	let box_material = materials.add(Color::rgb(1.0, 0.2, 0.3).into());
+	let box_material = materials.add(Color::rgb(1.0, 0.2, 0.3));
 
 	const AMOUNT: i32 = 6;
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
@@ -42,11 +42,11 @@ fn init(
 
 // Press "T" to toggle keyboard+mouse control over the camera
 fn toggle_button_system(
-	input: Res<Input<KeyCode>>,
+	input: Res<ButtonInput<KeyCode>>,
 	mut query: Query<&mut FlyCamera>,
 ) {
 	for mut options in query.iter_mut() {
-		if input.just_pressed(KeyCode::T) {
+		if input.just_pressed(KeyCode::KeyT) {
 			println!("Toggled FlyCamera enabled!");
 			options.enabled = !options.enabled;
 		}
