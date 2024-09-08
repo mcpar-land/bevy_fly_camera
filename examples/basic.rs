@@ -18,8 +18,8 @@ fn init(
 		.spawn(Camera3dBundle::default())
 		.insert(FlyCamera::default());
 
-	let box_mesh = meshes.add(Mesh::from(shape::Cube { size: 0.25 }));
-	let box_material = materials.add(Color::rgb(1.0, 0.2, 0.3));
+	let box_mesh = meshes.add(Mesh::from(Cuboid::new(0.25, 0.25, 0.25)));
+	let box_material = materials.add(Color::srgb(1.0, 0.2, 0.3));
 
 	const AMOUNT: i32 = 6;
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
