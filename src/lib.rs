@@ -128,7 +128,11 @@ fn forward_vector(rotation: &Quat) -> Vec3 {
 fn forward_walk_vector(rotation: &Quat) -> Vec3 {
 	let f = forward_vector(rotation);
 	let f_flattened = Vec3::new(f.x, 0.0, f.z).normalize();
-	f_flattened
+	if f_flattened.is_nan() {
+		Vec3::new(0.0, 0.0, 1.0) // if we're looking directly down, assume forward is up Z axis
+	} else {
+		f_flattened
+	}
 }
 
 fn strafe_vector(rotation: &Quat) -> Vec3 {
