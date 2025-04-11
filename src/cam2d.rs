@@ -41,10 +41,10 @@ impl Default for FlyCamera2d {
 			max_speed: 1.0 * MUL_2D,
 			friction: 1.75 * MUL_2D,
 			velocity: Vec2::ZERO,
-			key_left: KeyCode::A,
-			key_right: KeyCode::D,
-			key_up: KeyCode::W,
-			key_down: KeyCode::S,
+			key_left: KeyCode::KeyA,
+			key_right: KeyCode::KeyD,
+			key_up: KeyCode::KeyW,
+			key_down: KeyCode::KeyS,
 			enabled: true,
 		}
 	}
@@ -52,7 +52,7 @@ impl Default for FlyCamera2d {
 
 pub fn camera_2d_movement_system(
 	time: Res<Time>,
-	keyboard_input: Res<Input<KeyCode>>,
+	keyboard_input: Res<ButtonInput<KeyCode>>,
 	mut query: Query<(&mut FlyCamera2d, &mut Transform)>,
 ) {
 	for (mut options, mut transform) in query.iter_mut() {
@@ -78,14 +78,14 @@ pub fn camera_2d_movement_system(
 			Vec2::ZERO
 		};
 
-		options.velocity += accel * time.delta_seconds();
+		options.velocity += accel * time.delta_secs();
 
 		// clamp within max speed
 		if options.velocity.length() > options.max_speed {
 			options.velocity = options.velocity.normalize() * options.max_speed;
 		}
 
-		let delta_friction = friction * time.delta_seconds();
+		let delta_friction = friction * time.delta_secs();
 
 		options.velocity = if (options.velocity + delta_friction).signum()
 			!= options.velocity.signum()
