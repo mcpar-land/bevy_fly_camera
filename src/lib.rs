@@ -114,12 +114,7 @@ impl Default for FlyCamera {
 			key_backward: KeyCode::KeyS,
 			key_left: KeyCode::KeyA,
 			key_right: KeyCode::KeyD,
-			key_forward: KeyCode::KeyW,
-			key_backward: KeyCode::KeyS,
-			key_left: KeyCode::KeyA,
-			key_right: KeyCode::KeyD,
 			key_up: KeyCode::Space,
-			key_down: KeyCode::ShiftLeft,
 			key_down: KeyCode::ShiftLeft,
 			enabled: true,
 		}
@@ -145,7 +140,6 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 
 fn camera_movement_system(
 	time: Res<Time>,
-	keyboard_input: Res<ButtonInput<KeyCode>>,
 	keyboard_input: Res<ButtonInput<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
@@ -209,7 +203,6 @@ fn mouse_motion_system(
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	let mut delta: Vec2 = Vec2::ZERO;
-	for event in mouse_motion_event_reader.read() {
 	for event in mouse_motion_event_reader.read() {
 		delta += event.delta;
 	}
