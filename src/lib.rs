@@ -114,7 +114,12 @@ impl Default for FlyCamera {
 			key_backward: KeyCode::KeyS,
 			key_left: KeyCode::KeyA,
 			key_right: KeyCode::KeyD,
+			key_forward: KeyCode::KeyW,
+			key_backward: KeyCode::KeyS,
+			key_left: KeyCode::KeyA,
+			key_right: KeyCode::KeyD,
 			key_up: KeyCode::Space,
+			key_down: KeyCode::ShiftLeft,
 			key_down: KeyCode::ShiftLeft,
 			enabled: true,
 		}
@@ -140,6 +145,7 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 
 fn camera_movement_system(
 	time: Res<Time>,
+	keyboard_input: Res<ButtonInput<KeyCode>>,
 	keyboard_input: Res<ButtonInput<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
@@ -175,12 +181,14 @@ fn camera_movement_system(
 		};
 
 		options.velocity += accel * time.delta_secs();
+		options.velocity += accel * time.delta_secs();
 
 		// clamp within max speed
 		if options.velocity.length() > options.max_speed {
 			options.velocity = options.velocity.normalize() * options.max_speed;
 		}
 
+		let delta_friction = friction * time.delta_secs();
 		let delta_friction = friction * time.delta_secs();
 
 		options.velocity = if (options.velocity + delta_friction).signum()
@@ -202,6 +210,7 @@ fn mouse_motion_system(
 ) {
 	let mut delta: Vec2 = Vec2::ZERO;
 	for event in mouse_motion_event_reader.read() {
+	for event in mouse_motion_event_reader.read() {
 		delta += event.delta;
 	}
 	if delta.is_nan() {
@@ -212,6 +221,8 @@ fn mouse_motion_system(
 		if !options.enabled {
 			continue;
 		}
+		options.yaw -= delta.x * options.sensitivity * time.delta_secs();
+		options.pitch += delta.y * options.sensitivity * time.delta_secs();
 		options.yaw -= delta.x * options.sensitivity * time.delta_secs();
 		options.pitch += delta.y * options.sensitivity * time.delta_secs();
 
