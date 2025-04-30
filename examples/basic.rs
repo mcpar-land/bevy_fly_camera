@@ -10,12 +10,15 @@ fn init(
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-	commands.spawn(DirectionalLightBundle {
-		transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
-		..Default::default()
-	});
+	commands.spawn((
+			DirectionalLight::default(),
+			Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
+	));
 	commands
-		.spawn(Camera3dBundle::default())
+		.spawn((
+			Camera3d::default(),
+			Msaa::Sample4,
+		))
 		.insert(FlyCamera::default());
 
 	let box_mesh = meshes.add(Mesh::from(Cuboid::new(0.25, 0.25, 0.25)));
@@ -25,14 +28,13 @@ fn init(
 	for x in -(AMOUNT / 2)..(AMOUNT / 2) {
 		for y in -(AMOUNT / 2)..(AMOUNT / 2) {
 			for z in -(AMOUNT / 2)..(AMOUNT / 2) {
-				commands.spawn(PbrBundle {
-					mesh: box_mesh.clone(),
-					material: box_material.clone(),
-					transform: Transform::from_translation(Vec3::new(
+				commands.spawn((
+					Mesh3d(box_mesh.clone()),
+					MeshMaterial3d(box_material.clone()),
+					Transform::from_translation(Vec3::new(
 						x as f32, y as f32, z as f32,
 					)),
-					..Default::default()
-				});
+				));
 			}
 		}
 	}
@@ -55,7 +57,6 @@ fn toggle_button_system(
 
 fn main() {
 	App::new()
-		.insert_resource(Msaa::Sample4)
 		.add_plugins(DefaultPlugins)
 		.add_systems(Startup, init)
 		.add_plugins(FlyCameraPlugin)

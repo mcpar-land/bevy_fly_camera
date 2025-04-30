@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fly_camera"
-version = "0.14.0"
+version = "0.15.0"
 authors = ["mcpar-land"]
 edition = "2021"
 exclude = [".vscode/**"]
@@ -12,7 +12,7 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.14" }
+bevy = { version = "0.15" }
 
 #[patch.crates-io]
 #bevy = { path = "../bevy" }

@@ -78,14 +78,14 @@ pub fn camera_2d_movement_system(
 			Vec2::ZERO
 		};
 
-		options.velocity += accel * time.delta_seconds();
+		options.velocity += accel * time.delta_secs();
 
 		// clamp within max speed
 		if options.velocity.length() > options.max_speed {
 			options.velocity = options.velocity.normalize() * options.max_speed;
 		}
 
-		let delta_friction = friction * time.delta_seconds();
+		let delta_friction = friction * time.delta_secs();
 
 		options.velocity = if (options.velocity + delta_friction).signum()
 			!= options.velocity.signum()
