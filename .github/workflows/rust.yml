@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
