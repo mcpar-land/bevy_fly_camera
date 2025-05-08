@@ -110,12 +110,12 @@ impl Default for FlyCamera {
 			pitch: 0.0,
 			yaw: 0.0,
 			velocity: Vec3::ZERO,
-			key_forward: KeyCode::W,
-			key_backward: KeyCode::S,
-			key_left: KeyCode::A,
-			key_right: KeyCode::D,
+			key_forward: KeyCode::KeyW,
+			key_backward: KeyCode::KeyS,
+			key_left: KeyCode::KeyA,
+			key_right: KeyCode::KeyD,
 			key_up: KeyCode::Space,
-			key_down: KeyCode::LShift,
+			key_down: KeyCode::ShiftLeft,
 			enabled: true,
 		}
 	}
@@ -128,7 +128,11 @@ fn forward_vector(rotation: &Quat) -> Vec3 {
 fn forward_walk_vector(rotation: &Quat) -> Vec3 {
 	let f = forward_vector(rotation);
 	let f_flattened = Vec3::new(f.x, 0.0, f.z).normalize();
-	f_flattened
+	if f_flattened.is_nan() {
+		Vec3::new(0.0, 0.0, 1.0) // if we're looking directly down, assume forward is up Z axis
+	} else {
+		f_flattened
+	}
 }
 
 fn strafe_vector(rotation: &Quat) -> Vec3 {
@@ -140,7 +144,7 @@ fn strafe_vector(rotation: &Quat) -> Vec3 {
 
 fn camera_movement_system(
 	time: Res<Time>,
-	keyboard_input: Res<Input<KeyCode>>,
+	keyboard_input: Res<ButtonInput<KeyCode>>,
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	for (mut options, mut transform) in query.iter_mut() {
@@ -174,14 +178,14 @@ fn camera_movement_system(
 			Vec3::ZERO
 		};
 
-		options.velocity += accel * time.delta_seconds();
+		options.velocity += accel * time.delta_secs();
 
 		// clamp within max speed
 		if options.velocity.length() > options.max_speed {
 			options.velocity = options.velocity.normalize() * options.max_speed;
 		}
 
-		let delta_friction = friction * time.delta_seconds();
+		let delta_friction = friction * time.delta_secs();
 
 		options.velocity = if (options.velocity + delta_friction).signum()
 			!= options.velocity.signum()
@@ -201,7 +205,7 @@ fn mouse_motion_system(
 	mut query: Query<(&mut FlyCamera, &mut Transform)>,
 ) {
 	let mut delta: Vec2 = Vec2::ZERO;
-	for event in mouse_motion_event_reader.iter() {
+	for event in mouse_motion_event_reader.read() {
 		delta += event.delta;
 	}
 	if delta.is_nan() {
@@ -212,10 +216,10 @@ fn mouse_motion_system(
 		if !options.enabled {
 			continue;
 		}
-		options.yaw -= delta.x * options.sensitivity * time.delta_seconds();
-		options.pitch += delta.y * options.sensitivity * time.delta_seconds();
+		options.yaw -= delta.x * options.sensitivity * time.delta_secs();
+		options.pitch += delta.y * options.sensitivity * time.delta_secs();
 
-		options.pitch = options.pitch.clamp(-89.0, 89.9);
+		options.pitch = options.pitch.clamp(-89.9, 89.9);
 		// println!("pitch: {}, yaw: {}", options.pitch, options.yaw);
 
 		let yaw_radians = options.yaw.to_radians();
@@ -242,8 +246,8 @@ pub struct FlyCameraPlugin;
 impl Plugin for FlyCameraPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_system(camera_movement_system)
-			.add_system(camera_2d_movement_system)
-			.add_system(mouse_motion_system);
+			.add_systems(Update, camera_movement_system)
+			.add_systems(Update, camera_2d_movement_system)
+			.add_systems(Update, mouse_motion_system);
 	}
 }
